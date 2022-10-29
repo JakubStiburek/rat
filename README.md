@@ -9,5 +9,5 @@ Cat man page: [cat](https://man7.org/linux/man-pages/man1/cat.1.html)
 - [x] Copy standard input to standard output
 - [x] Dump contents of a given file to standard output
 - [x] Number lines option
-- [ ] Number nonempty lines
+- [x] Number nonempty lines
 - [x] Show $ at end of each line option
