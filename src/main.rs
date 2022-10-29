@@ -1,5 +1,4 @@
 use std::error::Error;
-use std::fmt::format;
 use std::io;
 use clap::{Parser};
 use std::fs::{read_to_string};
@@ -7,11 +6,14 @@ use std::fs::{read_to_string};
 #[derive(Parser, Debug)]
 #[command(author = "Jakub Stiburek", version = "0.1.0", about = "Concatenate to standard output.")]
 struct Args {
-    #[arg(short, long)]
+    #[arg(short, long, help = "number all output lines")]
     number: bool,
     
-    #[arg(short, long)]
+    #[arg(short, long = "show-ends", help = "display $ at end of each line")]
     end: bool,
+    
+    #[arg(short = 'b', long, help = "number nonempty output lines, overrides -n")]
+    number_nonblank: bool,
     
     file: Option<String>,
 }
@@ -20,6 +22,7 @@ struct Args {
 enum Flag {
     NUMBER,
     END,
+    NONBLANK
 }
 
 fn main() {
@@ -27,7 +30,9 @@ fn main() {
     
     let mut flags: Vec<Flag> = vec![];
     
-    if args.number {
+    if args.number_nonblank {
+        flags.push(Flag::NONBLANK)
+    } else if args.number {
         flags.push(Flag::NUMBER)
     }
     
@@ -45,25 +50,31 @@ fn dump_file(input_file: String, flags: Vec<Flag>) -> Result<(), Box<dyn Error>>
     if flags.is_empty() {
         println!("{}", read_to_string(input_file).unwrap());
     } else {
+        let mut lines_skipped = 0;
         let content = read_to_string(input_file).unwrap();
-        let lines = content.split("\n");
-        for (i, line) in lines.enumerate() {
-            let mut prefix: String = "".to_string();
-            let mut suffix: String = "".to_string();
+        let lines: Vec<&str> = content.split("\n").collect();
+        for (i, line) in lines.iter().enumerate() {
+            let mut output: String = line.to_string();
+            
+            if flags.contains(&Flag::END) {
+                output = format!("{} $", line);
+            }
             
             if flags.contains(&Flag::NUMBER) {
-                prefix = format!("{}", i).to_string();
+                output = format!("{} {}", i, output);
             }
-            if flags.contains(&Flag::END) {
-                suffix = "$".to_string();
+            
+            if flags.contains(&Flag::NONBLANK) && output.len() > 1 {
+                output = format!("{} {}", i - lines_skipped, output);
+            } else {
+                lines_skipped += 1;
             }
-            println!("{} {} {}", prefix, line, suffix );
+            
+            // println!("{:?}", line);
+            println!("{}", output)
         }
     }
-    
-    
-    
-    
+
     Ok(())
 }
 
