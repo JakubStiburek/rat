@@ -70,7 +70,6 @@ fn dump_file(input_file: String, flags: Vec<Flag>) -> Result<(), Box<dyn Error>>
                 lines_skipped += 1;
             }
             
-            // println!("{:?}", line);
             println!("{}", output)
         }
     }
