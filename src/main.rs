@@ -57,7 +57,7 @@ fn dump_file(input_file: String, flags: Vec<Flag>) -> Result<(), Box<dyn Error>>
             if flags.contains(&Flag::END) {
                 suffix = "$".to_string();
             }
-            println!("{}:{}:{}", prefix, line, suffix );
+            println!("{} {} {}", prefix, line, suffix );
         }
     }
     
